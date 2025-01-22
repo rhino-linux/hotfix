@@ -1,1 +1,7 @@
-{}
+{
+    "PipeWire": {
+        "script": "scripts/pipewire.sh",
+        "description": "Fixes PipeWire Audio issues with Rhino Linux 2025.1",
+        "published": "2025-01-22"
+    }
+}
