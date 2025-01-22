@@ -66,7 +66,7 @@ func addHotfix(filename, name, script, description string) error {
 		items = make(Items)
 	}
 	// Get date
-	date := time.Now().Format("2006-01-02")
+	date := time.Now().Format("2006-01-02") // Format: YYYY-MM-DD
 	items[name] = Item{Script: script, Description: description, Published: date} // Add the item to a map.
 	// Write to file
 	return writeHotfixes(filename, items)
@@ -124,7 +124,7 @@ func main() {
 	filename := "hotfixes.json"
 
 	if len(os.Args) < 2 {
-		fmt.Println("Usage: go run hotfix-manager.go <command> [options]")
+		fmt.Println("Usage: go run manager.go <command> [options]")
         fmt.Println("  add      Add a new hotfix")
 		fmt.Println("  remove   Remove an existing hotfix")
 		fmt.Println("  list     List all hotfixes")
