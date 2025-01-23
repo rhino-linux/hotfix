@@ -61,6 +61,10 @@ func addHotfix(filename, name, script, description string) error {
 	if err != nil && !os.IsNotExist (err) {
 		return err
 	}
+	// Check if script file exists
+	if _, err := os.Stat(script); err != nil {
+		return fmt.Errorf("Script file does not exist")
+	}
 	// If file != exist or is empty
 	if items == nil {
 		items = make(Items)
