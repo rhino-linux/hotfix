@@ -196,6 +196,9 @@ done
 
 mkdir -p "${FIXDIR}"
 cd "${FIXDIR}"
+
+#NOTE: add selector here
+
 for i in "${keys[@]}"; do
   srcdir="${FIXDIR}/${i}-${data[${i}_published]}"
   mkdir -p "${srcdir}"
