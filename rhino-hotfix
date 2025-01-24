@@ -1,32 +1,25 @@
 #!/usr/bin/env bash
 
-#rhino-hotfix get
-#rhino-hotfix get [#PRNUM]
-#rhino-hotfix get [user/repo#PRNUM]
-#rhino-hotfix run <key>
-#rhino-hotfix run <key>[#PRNUM]
-#rhino-hotfix run <key>[@user/repo#PRNUM]
-
 tabs 4
-export BOLD='\033[1m'
-export NC='\033[0m'
-export RED='\033[0;31m'
-export GREEN='\033[0;32m'
-export YELLOW='\033[0;33m'
-export BLUE='\033[0;34m'
-export PURPLE='\033[0;35m'
-export CYAN='\033[0;36m'
-export BRed='\033[1;31m'
-export BGreen='\033[1;32m'
-export BYellow='\033[1;33m'
-export BBlue='\033[1;34m'
-export BPurple='\033[1;35m'
-export BCyan='\033[1;36m'
+export BOLD=$'\033[1m'
+export NC=$'\033[0m'
+export RED=$'\033[0;31m'
+export GREEN=$'\033[0;32m'
+export YELLOW=$'\033[0;33m'
+export BLUE=$'\033[0;34m'
+export PURPLE=$'\033[0;35m'
+export CYAN=$'\033[0;36m'
+export BRed=$'\033[1;31m'
+export BGreen=$'\033[1;32m'
+export BYellow=$'\033[1;33m'
+export BBlue=$'\033[1;34m'
+export BPurple=$'\033[1;35m'
+export BCyan=$'\033[1;36m'
 
 export FIXDIR="/tmp/rhino-hotfix"
 export CARCH="$(dpkg --print-architecture)"
 
-fancy_message() {
+function fancy_message() {
   local MESSAGE_TYPE="${1}" MESSAGE="${2}" FANCYTEXT
   shift 2
   local PRINTARGS=("${@}")
@@ -100,19 +93,21 @@ function ask() {
   done
 }
 
-cleanup() {
+function cleanup() {
+  catch=$?
   if [[ -d "${FIXDIR}" ]]; then
    rm -rf "${FIXDIR}"/*
   fi
+  exit ${catch}
 }
 
-parse_link() {
+function parse_link() {
 	local metalink
   local -n ref_user="${2}" ref_repo="${3}" ref_branch="${4}" ref_pr="${5}"
 	metalink="${1}"
   if [[ ${metalink} == *"#"* ]]; then
   	if [[ ${metalink} == *":"* ]]; then
-  		fancy_message error "branch and PR cannot both be provided"
+  		fancy_message error "Branch and PR cannot both be provided"
   		exit 1
   	fi
   	ref_pr="${metalink##*#}"
@@ -129,23 +124,35 @@ parse_link() {
   if [[ ${metalink} == *"/"* ]]; then
   	ref_repo="${metalink##*/}"
   else
-    fancy_message error "malformed input"
+    fancy_message error "Malformed input"
   	exit 1
   fi
 }
 
-parse_pr() {
+function parse_pr() {
   local orig_user="${1}" orig_repo="${2}" num="${3}" head_name head_sha head_user gh_provides
-  local -n ref_url="${4}" ref_login="${5}"
+  local -n ref_url="${4}"
   gh_provides=$(curl -fsSL "https://api.github.com/repos/${orig_user}/${orig_repo}/pulls/${num}") || exit 1
   head_name=$(echo "${gh_provides}" | jq -r '.head.repo.name')
   head_sha=$(echo "${gh_provides}" | jq -r '.head.sha')
   head_user=$(echo "${gh_provides}" | jq -r '.head.user.login')
-  ref_url="https://raw.githubusercontent.com/${head_user}/${head_name}/${head_sha}" ref_login="${head_user}/${head_name}"
+  ref_url="https://raw.githubusercontent.com/${head_user}/${head_name}/${head_sha}"
+}
+
+function array.contains() {
+    local check
+    local -n arra="${1:?No array passed to array.contains}"
+    local input="${2:?No input given to array.contains}"
+    for check in "${arra[@]}"; do
+        if [[ ${check} == "${input}" ]]; then
+            return 0
+        fi
+    done
+    return 1
 }
 
 if ! [[ -f "/etc/os-release" ]]; then
-  fancy_message error "not running on a Linux system."
+  fancy_message error "Not running on a Linux system."
   exit 1
 fi
 
@@ -158,23 +165,32 @@ while IFS='=' read -r key value; do
 done < /etc/os-release
 
 if ! [[ ${d_name} == "Rhino Linux" && ${d_codename} == "devel" && ${d_id} == "ubuntu" ]]; then
-  fancy_message error "not running on a Rhino Linux system."
+  fancy_message error "Not running on a Rhino Linux system."
   exit 1
-fi  
+fi
 
 input="${1}"
 trap cleanup EXIT INT
 
+if [[ ${input} == *"@"* ]]; then
+  IN_KEY="${input%%@*}"
+  input="${input##*@}"
+else
+  unset IN_KEY
+fi
+
 parse_link "${input}" user repo branch pr
+login="${CYAN}${user}/${repo}${NC}"
 if [[ -z ${pr} ]]; then
 	BASEURL="https://raw.githubusercontent.com/${user}/${repo}/refs/heads/${branch}"
-	login="${user}/${repo}"
+  [[ ${branch} != "main" ]] && login+=":${YELLOW}${branch}${NC}"
 else
-	parse_pr "${user}" "${repo}" "${pr}" BASEURL login
+	parse_pr "${user}" "${repo}" "${pr}" BASEURL
+  login+="#${YELLOW}${pr}${NC}"
 fi
-hotfixes="$(curl -fsSL ${BASEURL}/hotfixes.json)" || { fancy_message error "failed to fetch hotfixes"; exit 1; }
+hotfixes="$(curl -fsSL ${BASEURL}/hotfixes.json)" || { fancy_message error "Failed to fetch hotfixes from ${login}"; exit 1; }
 if [[ ${hotfixes} == "{}" ]]; then
-  fancy_message info "There are no available hotfixes from ${BPurple}${login}${NC}"
+  fancy_message warn "There are no available hotfixes from ${login}"
   exit 0
 fi
 mapfile -t keys < <(jq -r 'keys[]' <<< "${hotfixes}")
@@ -189,22 +205,58 @@ for i in "${!keys[@]}"; do
     data["${keys[i]}_published"]="${published_dates[i]}"
 done
 
-fancy_message info "Fetched hotfixes list from ${BPurple}${login}${NC}:"
-for i in "${keys[@]}"; do
-  fancy_message sub "${BOLD}${i}${NC} (${data[${i}_published]}) - ${data[${i}_description]}"
-done
+if [[ -n ${IN_KEY} ]]; then
+  if ! array.contains keys "${IN_KEY}"; then
+    fancy_message error "${BLUE}${IN_KEY}${NC} is not an available hotfix from ${login}"
+    exit 1
+  fi
+  fancy_message info "Fetched hotfix from ${login}"
+  fancy_message sub "${BOLD}${IN_KEY}${NC} (${data[${IN_KEY}_published]}) - ${data[${IN_KEY}_description]}"
+  selected_keys=("${IN_KEY}")
+else
+  fancy_message info "Fetched hotfixes from ${login}"
+  echo "There are ${BPurple}${#keys[@]}${NC} hotfixes available:"
+  echo "[${RED}N${NC}] Exit"
+  for i in "${!keys[@]}"; do
+    echo "[${GREEN}$((i + 1))${NC}] ${BLUE}${keys[i]}${NC} (${data[${keys[i]}_published]}) - ${data[${keys[i]}_description]}"
+  done
+  if ((${#keys[@]} <= 6)); then
+    for ((i = 0; i < ${#keys[@]}; i++)); do
+      numlist+="${GREEN}$((i + 1))${NC} "
+    done
+  else
+    numlist="1 2 3 ... "
+    for ((i = ${#keys[@]} - 3; i < ${#keys[@]}; i++)); do
+      numlist+="${GREEN}$((i + 1))${NC} "
+    done
+  fi
+
+  read -p "Which hotfixes would you like to install? [${numlist}${RED}N${NC}] " -a selection
+
+  selected_keys=()
+  if array.contains selection "N" || array.contains selection "n"; then
+    fancy_message info "Cleaning up"
+    exit 0
+  fi
+  for choice in "${selection[@]}"; do
+    if [[ "${choice}" =~ ^[0-9]+$ ]] && (( choice >= 1 && choice < ${#keys[@]} + 1 )); then
+      selected_keys+=("${keys[$((choice - 1))]}")
+    else
+      fancy_message error "${GREEN}${choice}${NC} is not an option"
+      exit 1
+    fi
+  done
+fi
 
 mkdir -p "${FIXDIR}"
 cd "${FIXDIR}"
 
-#NOTE: add selector here
-
-for i in "${keys[@]}"; do
+for i in "${selected_keys[@]}"; do
   srcdir="${FIXDIR}/${i}-${data[${i}_published]}"
   mkdir -p "${srcdir}"
   cd "${srcdir}"
 
-  curl -fsSL "${BASEURL}/${data[${i}_script]}" -o "${FIXDIR}/${data[${i}_script]##*/}" || { fancy_message error "failed to fetch script for ${BBlue}${i}${NC}"; exit 1; }
+  curl -fsSL "${BASEURL}/${data[${i}_script]}" -o "${FIXDIR}/${data[${i}_script]##*/}" || { fancy_message error "failed to fetch script for ${BLUE}${i}${NC}"; exit 1; }
   ask "(${BPurple}${i}${NC}) Do you want to view/edit the hotfix?" N
   if ((answer == 1)); then
     (
@@ -236,4 +288,4 @@ for i in "${keys[@]}"; do
 done
 
 fancy_message info "Cleaning up"
-cleanup
+exit 0
