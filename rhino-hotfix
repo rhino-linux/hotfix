@@ -212,6 +212,9 @@ trap trap_ctrlc 2
 if [[ ${input} == *"@"* ]]; then
   IN_KEY="${input%%@*}"
   input="${input##*@}"
+elif [[ ${input} != *":"* && ${input} != *"#"* && ${input} != *"/"* ]]; then
+  IN_KEY="${input}"
+  unset input
 else
   unset IN_KEY
 fi
