@@ -160,7 +160,7 @@ function fail_out_functions() {
   local func="${1}" name="${2}"
   trap - ERR
   eval "${restoreshopt}"
-  fancy_message error "Hotfix ${BBlue}${name}${NC} failed"
+  fancy_message error "Hotfix for ${BLUE}${name}${NC} failed"
   fancy_message info "Cleaning up"
   exit 1
 }
