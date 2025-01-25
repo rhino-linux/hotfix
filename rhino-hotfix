@@ -94,11 +94,15 @@ function ask() {
 }
 
 function cleanup() {
-  catch=$?
   if [[ -d "${FIXDIR}" ]]; then
    rm -rf "${FIXDIR}"/*
   fi
-  exit ${catch}
+}
+
+function trap_ctrlc() {
+  fancy_message warn "Interrupted, cleaning up"
+  cleanup
+  exit 1
 }
 
 function parse_link() {
@@ -170,7 +174,8 @@ if ! [[ ${d_name} == "Rhino Linux" && ${d_codename} == "devel" && ${d_id} == "ub
 fi
 
 input="${1}"
-trap cleanup EXIT INT
+trap cleanup EXIT
+trap trap_ctrlc 2
 
 if [[ ${input} == *"@"* ]]; then
   IN_KEY="${input%%@*}"
@@ -216,9 +221,9 @@ if [[ -n ${IN_KEY} ]]; then
 else
   fancy_message info "Fetched hotfixes from ${login}"
   echo "There are ${BPurple}${#keys[@]}${NC} hotfixes available:"
-  echo "[${RED}N${NC}] Exit"
+  echo -e "\t[${RED}N${NC}] Exit"
   for i in "${!keys[@]}"; do
-    echo "[${GREEN}$((i + 1))${NC}] ${BOLD}${keys[i]}${NC} (${data[${keys[i]}_published]}) - ${data[${keys[i]}_description]}"
+    echo -e "\t[${GREEN}$((i + 1))${NC}] ${BOLD}${keys[i]}${NC} (${data[${keys[i]}_published]}) - ${data[${keys[i]}_description]}"
   done
   if ((${#keys[@]} <= 6)); then
     for ((i = 0; i < ${#keys[@]}; i++)); do
