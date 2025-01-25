@@ -207,7 +207,7 @@ done
 
 if [[ -n ${IN_KEY} ]]; then
   if ! array.contains keys "${IN_KEY}"; then
-    fancy_message error "${BLUE}${IN_KEY}${NC} is not an available hotfix from ${login}"
+    fancy_message error "${BOLD}${IN_KEY}${NC} is not an available hotfix from ${login}"
     exit 1
   fi
   fancy_message info "Fetched hotfix from ${login}"
@@ -218,7 +218,7 @@ else
   echo "There are ${BPurple}${#keys[@]}${NC} hotfixes available:"
   echo "[${RED}N${NC}] Exit"
   for i in "${!keys[@]}"; do
-    echo "[${GREEN}$((i + 1))${NC}] ${BLUE}${keys[i]}${NC} (${data[${keys[i]}_published]}) - ${data[${keys[i]}_description]}"
+    echo "[${GREEN}$((i + 1))${NC}] ${BOLD}${keys[i]}${NC} (${data[${keys[i]}_published]}) - ${data[${keys[i]}_description]}"
   done
   if ((${#keys[@]} <= 6)); then
     for ((i = 0; i < ${#keys[@]}; i++)); do
@@ -257,7 +257,7 @@ for i in "${selected_keys[@]}"; do
   cd "${srcdir}"
 
   curl -fsSL "${BASEURL}/${data[${i}_script]}" -o "${FIXDIR}/${data[${i}_script]##*/}" || { fancy_message error "failed to fetch script for ${BLUE}${i}${NC}"; exit 1; }
-  ask "(${BPurple}${i}${NC}) Do you want to view/edit the hotfix?" N
+  ask "(${BBlue}${i}${NC}) Do you want to view/edit the hotfix?" N
   if ((answer == 1)); then
     (
       if [[ -n $EDITOR ]]; then
