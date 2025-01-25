@@ -145,15 +145,46 @@ function parse_pr() {
 }
 
 function array.contains() {
-    local check
-    local -n arra="${1:?No array passed to array.contains}"
-    local input="${2:?No input given to array.contains}"
-    for check in "${arra[@]}"; do
-        if [[ ${check} == "${input}" ]]; then
-            return 0
-        fi
-    done
-    return 1
+  local check
+  local -n arra="${1:?No array passed to array.contains}"
+  local input="${2:?No input given to array.contains}"
+  for check in "${arra[@]}"; do
+      if [[ ${check} == "${input}" ]]; then
+          return 0
+      fi
+  done
+  return 1
+}
+
+function fail_out_functions() {
+  local func="${1}" name="${2}"
+  trap - ERR
+  eval "${restoreshopt}"
+  fancy_message error "Hotfix ${BBlue}${name}${NC} failed"
+  fancy_message info "Cleaning up"
+  exit 1
+}
+
+function run_function() {
+  local func="${1}" name="${2}"
+  ${func}
+  return $?
+}
+
+function safe_run() {
+  local func="${1}" name="${2}"
+  export restoreshopt="$(shopt -p; shopt -p -o)"
+  local -
+  shopt -o -s errexit errtrace pipefail
+
+  local restoretrap="$(trap -p ERR)"
+  trap "fail_out_functions '${func}' '${name}'" ERR
+
+  run_function "${func}" "${name}"
+
+  trap - ERR
+  eval "${restoreshopt}"
+  eval "${restoretrap}"
 }
 
 if ! [[ -f "/etc/os-release" ]]; then
@@ -162,11 +193,11 @@ if ! [[ -f "/etc/os-release" ]]; then
 fi
 
 while IFS='=' read -r key value; do
-    case "${key}" in
-      "NAME") d_name="${value//\"/}" ;;
-      "VERSION_CODENAME") d_codename="${value//\"/}" ;;
-      "ID") d_id="${value//\"/}" ;;
-    esac
+  case "${key}" in
+    "NAME") d_name="${value//\"/}" ;;
+    "VERSION_CODENAME") d_codename="${value//\"/}" ;;
+    "ID") d_id="${value//\"/}" ;;
+  esac
 done < /etc/os-release
 
 if ! [[ ${d_name} == "Rhino Linux" && ${d_codename} == "devel" && ${d_id} == "ubuntu" ]]; then
@@ -286,7 +317,7 @@ for i in "${selected_keys[@]}"; do
     )
   fi
   source "${FIXDIR}/${data[${i}_script]##*/}"
-  hotfix
+  safe_run hotfix "${i}"
 
   cd "${FIXDIR}"
   unset -f hotfix 2> /dev/null
