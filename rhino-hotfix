@@ -27,6 +27,7 @@ function fancy_message() {
     info) FANCYTEXT="[${BGreen}+${NC}] ${BOLD}INFO${NC}:" ;;
     warn) FANCYTEXT="[${BYellow}*${NC}] ${BOLD}WARNING${NC}:" ;;
     error) FANCYTEXT="[${BRed}!${NC}] ${BOLD}ERROR${NC}:" ;;
+    note) FANCYTEXT="[${BCyan}~${NC}] ${BOLD}NOTE${NC}:" ;;
     sub) FANCYTEXT="\t[${BBlue}>${NC}]" ;;
     *) FANCYTEXT="[${BOLD}?${NC}] ${BOLD}UNKNOWN${NC}:" ;;
   esac
@@ -188,14 +189,14 @@ parse_link "${input}" user repo branch pr
 login="${CYAN}${user}/${repo}${NC}"
 if [[ -z ${pr} ]]; then
 	BASEURL="https://raw.githubusercontent.com/${user}/${repo}/refs/heads/${branch}"
-  [[ ${branch} != "main" ]] && login+=":${YELLOW}${branch}${NC}"
+  [[ ${branch} != "main" ]] && login+="${YELLOW}:${branch}${NC}"
 else
 	parse_pr "${user}" "${repo}" "${pr}" BASEURL
-  login+="#${YELLOW}${pr}${NC}"
+  login+="${YELLOW}#${pr}${NC}"
 fi
 hotfixes="$(curl -fsSL ${BASEURL}/hotfixes.json)" || { fancy_message error "Failed to fetch hotfixes from ${login}"; exit 1; }
 if [[ ${hotfixes} == "{}" ]]; then
-  fancy_message warn "There are no available hotfixes from ${login}"
+  fancy_message note "There are ${BPurple}0${NC} hotfixes available from ${login}"
   exit 0
 fi
 mapfile -t keys < <(jq -r 'keys[]' <<< "${hotfixes}")
@@ -220,7 +221,7 @@ if [[ -n ${IN_KEY} ]]; then
   selected_keys=("${IN_KEY}")
 else
   fancy_message info "Fetched hotfixes from ${login}"
-  echo "There are ${BPurple}${#keys[@]}${NC} hotfixes available:"
+  fancy_message note "There are ${BPurple}${#keys[@]}${NC} hotfixes available:"
   echo -e "\t[${RED}N${NC}] Exit"
   for i in "${!keys[@]}"; do
     echo -e "\t[${GREEN}$((i + 1))${NC}] ${BOLD}${keys[i]}${NC} (${data[${keys[i]}_published]}) - ${data[${keys[i]}_description]}"
@@ -236,7 +237,7 @@ else
     done
   fi
 
-  read -p "Which hotfixes would you like to install? [${numlist}${RED}N${NC}] " -a selection
+  read -p "[${BPurple}#${NC}] ${BOLD}PICK${NC}: Which hotfixes would you like to install? [${numlist}${RED}N${NC}] " -a selection
 
   selected_keys=()
   if array.contains selection "N" || array.contains selection "n"; then
