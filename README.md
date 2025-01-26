@@ -75,7 +75,7 @@ subprocess() {
 
 If a script ever needs to `cd` to a location, the variable `${SRCDIR}` is available to them to return to their starting points.
 
-Once written, the hotfix can be placed in `scripts/`, and must end with the prefix `.sh`. Then, you can run:
+Once written, the hotfix can be placed in `scripts/`, and must end with the suffix `.sh`. Then, you can run:
 ```bash
 go run manager.go add -t <name> -d "<description>" -s scripts/<scriptname>.sh
 git add hotfixes.json scripts/<scriptname>.sh
