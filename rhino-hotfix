@@ -98,6 +98,8 @@ function cleanup() {
   if [[ -d "${FIXDIR}" ]]; then
    rm -rf "${FIXDIR}"/*
   fi
+  unset SRCDIR 2> /dev/null
+  unset -f hotfix 2> /dev/null
 }
 
 function trap_ctrlc() {
@@ -317,9 +319,9 @@ mkdir -p "${FIXDIR}"
 cd "${FIXDIR}"
 
 for i in "${selected_keys[@]}"; do
-  srcdir="${FIXDIR}/${i}-${data[${i}_published]}"
-  mkdir -p "${srcdir}"
-  cd "${srcdir}"
+  export SRCDIR="${FIXDIR}/${i}-${data[${i}_published]}"
+  mkdir -p "${SRCDIR}"
+  cd "${SRCDIR}"
 
   curl -fsSL "${BASEURL}/${data[${i}_script]}" -o "${FIXDIR}/${data[${i}_script]##*/}" || { fancy_message error "failed to fetch script for ${BLUE}${i}${NC}"; exit 1; }
   ask "(${BBlue}${i}${NC}) Do you want to view/edit the hotfix?" N
@@ -349,7 +351,7 @@ for i in "${selected_keys[@]}"; do
 
   cd "${FIXDIR}"
   unset -f hotfix 2> /dev/null
-  rm -rf "${srcdir}"
+  rm -rf "${SRCDIR}"
 done
 
 fancy_message info "Cleaning up"

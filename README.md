@@ -73,7 +73,7 @@ subprocess() {
 }
 ```
 
-If a script ever needs to `cd` to a location, the variable `${srcdir}` is available to them to return to their starting points.
+If a script ever needs to `cd` to a location, the variable `${SRCDIR}` is available to them to return to their starting points.
 
 Once written, the hotfix can be placed in `scripts/`, and must end with the prefix `.sh`. Then, you can run:
 ```bash
