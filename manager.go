@@ -78,10 +78,10 @@ func addHotfix(filename, name, script, description string) error {
 
 // Validation
 func validateField(field, fieldName string) error {
-    valid := `^[A-Za-z0-9\-~._+()/]+$`
+    valid := `^[A-Za-z0-9\-~._+()]+$`
     re := regexp.MustCompile(valid)
     if !re.MatchString(field) {
-        return fmt.Errorf("%s contains invalid characters. Allowed characters are: [A-z], [0-9], [-~._+()/]", fieldName)
+        return fmt.Errorf("%s contains invalid characters. Allowed characters are: [A-z], [0-9], [-~._+()]", fieldName)
     }
     return nil
 }
