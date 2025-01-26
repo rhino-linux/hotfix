@@ -73,6 +73,8 @@ subprocess() {
 }
 ```
 
+If a script ever needs to `cd` to a location, the variable `${srcdir}` is available to them to return to their starting points.
+
 Once written, the hotfix can be placed in `scripts/`, and must end with the prefix `.sh`. Then, you can run:
 ```bash
 go run manager.go add -t <name> -d "<description>" -s scripts/<scriptname>.sh
