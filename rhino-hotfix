@@ -140,9 +140,9 @@ function parse_pr() {
   local orig_user="${1}" orig_repo="${2}" num="${3}" head_name head_sha head_user gh_provides
   local -n ref_url="${4}"
   gh_provides=$(curl -fsSL "https://api.github.com/repos/${orig_user}/${orig_repo}/pulls/${num}") || exit 1
-  head_name=$(echo "${gh_provides}" | jq -r '.head.repo.name')
-  head_sha=$(echo "${gh_provides}" | jq -r '.head.sha')
-  head_user=$(echo "${gh_provides}" | jq -r '.head.user.login')
+  head_name=$(jq -r '.head.repo.name'<<< "${gh_provides}")
+  head_sha=$(jq -r '.head.sha' <<< "${gh_provides}")
+  head_user=$(jq -r '.head.user.login' <<< "${gh_provides}")
   ref_url="https://raw.githubusercontent.com/${head_user}/${head_name}/${head_sha}"
 }
 
