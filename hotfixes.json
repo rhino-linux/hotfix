@@ -2,6 +2,6 @@
     "PipeWire": {
         "script": "scripts/pipewire.sh",
         "description": "Repairs audio issues on 2025.1 images",
-        "published": "2025-01-24"
+        "published": "2025-02-11"
     }
 }
