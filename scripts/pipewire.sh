@@ -3,7 +3,7 @@
 hotfix() {
   local name pkgver base_url packages pacdeps
   name="pipewire-bundle"
-  pkgver="1.2.7-1+b2"
+  pkgver="1.4.0-1"
   base_url="http://ftp.debian.org/debian/pool/main/p/pipewire"
   packages=(
     "libspa-0.2-modules"
