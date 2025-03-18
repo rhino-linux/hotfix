@@ -1,4 +1,9 @@
 {
+    "Nala-httpx": {
+        "script": "scripts/nala-httpx.sh",
+        "description": "Fix bug related to an argument deprecation in python3-httpx@0.28.0",
+        "published": "2025-03-18"
+    },
     "PipeWire": {
         "script": "scripts/pipewire.sh",
         "description": "Repairs audio issues on 2025.1/2025.2 images",
