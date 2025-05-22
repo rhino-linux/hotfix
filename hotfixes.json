@@ -1,9 +1,4 @@
 {
-    "PipeWire": {
-        "script": "scripts/pipewire.sh",
-        "description": "Repairs audio issues on 2025.1/2025.2 images",
-        "published": "2025-03-13"
-    },
     "bt-a2dp": {
         "script": "scripts/btcodec.sh",
         "description": "Repairs A2DP profiles with Bluetooth Audio",
@@ -13,10 +8,5 @@
         "script": "scripts/streaming.sh",
         "description": "Repairs Firefox streaming issues on 2025.1/2025.2 images",
         "published": "2025-02-24"
-    },
-    "nala-httpx": {
-        "script": "scripts/nala-httpx.sh",
-        "description": "Repairs Nala backend failures from python3-httpx deprecation",
-        "published": "2025-03-18"
     }
 }
