@@ -1,4 +1,9 @@
 {
+    "aacurl": {
+        "script": "scripts/aacurl.sh",
+        "description": "Repairs apparmor curl block in 2025.3 images",
+        "published": "2025-07-08"
+    },
     "nix-bin": {
         "script": "scripts/nix-bin.sh",
         "description": "Repairs nix-bin segfaults in 2025.3 images",
