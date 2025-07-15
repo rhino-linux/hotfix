@@ -6,7 +6,7 @@
     },
     "ffstream": {
         "script": "scripts/streaming.sh",
-        "description": "Repairs Firefox streaming issues",
+        "description": "Repairs Firefox streaming issues in 2025.{1,2} images",
         "published": "2025-02-24"
     },
     "nix-bin": {
