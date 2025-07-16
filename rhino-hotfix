@@ -300,7 +300,7 @@ else
     if [[ ${data[${keys[i]}_archived]} == "false" ]]; then
       status="${BCyan}Current${NC}"
     else
-      status="${BOLD}Deprecated in ${data[${keys[i]}_archived]}${NC}"
+      status="${BPurple}Deprecated in ${data[${keys[i]}_archived]}${NC}"
     fi
     echo -e "\t[${GREEN}$((i + 1))${NC}] ${BOLD}${keys[i]}${NC} (${data[${keys[i]}_published]}) - ${status}"
     echo -e "\t ${GREEN}╰➤${NC} ${data[${keys[i]}_description]}"
