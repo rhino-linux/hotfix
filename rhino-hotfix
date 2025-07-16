@@ -264,12 +264,18 @@ mapfile -t keys < <(jq -r 'keys[]' <<< "${hotfixes}")
 mapfile -t scripts < <(jq -r '.[] | .script' <<< "${hotfixes}")
 mapfile -t descriptions < <(jq -r '.[] | .description' <<< "${hotfixes}")
 mapfile -t published_dates < <(jq -r '.[] | .published' <<< "${hotfixes}")
+mapfile -t archived < <(jq -r '.[] | .archived' <<< "${hotfixes}")
 
 declare -A data
 for i in "${!keys[@]}"; do
-    data["${keys[i]}_script"]="${scripts[i]}"
-    data["${keys[i]}_description"]="${descriptions[i]}"
-    data["${keys[i]}_published"]="${published_dates[i]}"
+  if [[ ${archived[i]} == "false" ]]; then
+    data["${keys[i]}_script"]="scripts/active/${scripts[i]}"
+  else
+    data["${keys[i]}_script"]="scripts/archived/${archived[i]}/${scripts[i]}"
+  fi
+  data["${keys[i]}_description"]="${descriptions[i]}"
+  data["${keys[i]}_published"]="${published_dates[i]}"
+  data["${keys[i]}_archived"]="${archived[i]}"
 done
 
 if [[ -n ${IN_KEY} ]]; then
@@ -285,7 +291,12 @@ else
   fancy_message note "There are ${BPurple}${#keys[@]}${NC} hotfixes available:"
   echo -e "\t[${RED}N${NC}] Exit"
   for i in "${!keys[@]}"; do
-    echo -e "\t[${GREEN}$((i + 1))${NC}] ${BOLD}${keys[i]}${NC} (${data[${keys[i]}_published]}) - ${data[${keys[i]}_description]}"
+    if [[ ${data[${keys[i]}_archived]} == "false" ]]; then
+      status="Current"
+    else
+      status="Deprecated in ${data[${keys[i]}_published]}"
+    fi
+    echo -e "\t[${GREEN}$((i + 1))${NC}] ${BOLD}${keys[i]}${NC} (${data[${keys[i]}_published]}) - ${status}\n\t\t${data[${keys[i]}_description]}"
   done
   if ((${#keys[@]} <= 6)); then
     for ((i = 0; i < ${#keys[@]}; i++)); do
