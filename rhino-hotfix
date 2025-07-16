@@ -214,18 +214,18 @@ echo "Usage: rhino-hotfix <input> [-h]
   Input format:
     <hotfix>[@<metalink>]
 
-    <hotfix> (optional):  
-      - \`hotfix\`: Fetch a specific hotfix.  
-      - \`hotfix@<metalink>\`: Fetch from a specific repo, branch, or PR.  
+    <hotfix> (optional):
+      - \`hotfix\`: Fetch a specific hotfix.
+      - \`hotfix@<metalink>\`: Fetch from a specific repo, branch, or PR.
 
-    <metalink> (optional):  
-      - \`[user/repo]\`: Use a specific repo.  
-      - \`[user/repo:branch]\` or \`[:branch]\`: Use a specific branch.  
-      - \`[user/repo#PR]\` or \`[#PR]\`: Use a specific PR number.  
+    <metalink> (optional):
+      - \`[user/repo]\`: Use a specific repo.
+      - \`[user/repo:branch]\` or \`[:branch]\`: Use a specific branch.
+      - \`[user/repo#PR]\` or \`[#PR]\`: Use a specific PR number.
       Note: only branch or PR can be used, not both.
 
   Examples:
-    rhino-hotfix                    # List hotfixes from rhino-linux/hotfix. 
+    rhino-hotfix                    # List hotfixes from rhino-linux/hotfix.
     rhino-hotfix :branch            # List hotfixes from an upstream branch.
     rhino-hotfix hotfix             # Fetch a hotfix from rhino-linux/hotfix.
     rhino-hotfix hotfix@#42         # Fetch a hotfix from PR #42 upstream.
@@ -284,7 +284,13 @@ if [[ -n ${IN_KEY} ]]; then
     exit 1
   fi
   fancy_message info "Fetched hotfix from ${login}"
-  fancy_message sub "${BOLD}${IN_KEY}${NC} (${data[${IN_KEY}_published]}) - ${data[${IN_KEY}_description]}"
+  if [[ ${data[${IN_KEY}_archived]} == "false" ]]; then
+    status="${BCyan}Current${NC}"
+  else
+    status="${BOLD}Deprecated in ${data[${IN_KEY}_archived]}${NC}"
+  fi
+  fancy_message sub "${BOLD}${IN_KEY}${NC} (${data[${IN_KEY}_published]}) - ${status}"
+  echo -e "\t ${BLUE}╰➤${NC} ${data[${IN_KEY}_description]}"
   selected_keys=("${IN_KEY}")
 else
   fancy_message info "Fetched hotfixes from ${login}"
@@ -294,7 +300,7 @@ else
     if [[ ${data[${keys[i]}_archived]} == "false" ]]; then
       status="${BCyan}Current${NC}"
     else
-      status="${BPurple}Deprecated in ${data[${keys[i]}_archived]}${NC}"
+      status="${BOLD}Deprecated in ${data[${keys[i]}_archived]}${NC}"
     fi
     echo -e "\t[${GREEN}$((i + 1))${NC}] ${BOLD}${keys[i]}${NC} (${data[${keys[i]}_published]}) - ${status}"
     echo -e "\t ${GREEN}╰➤${NC} ${data[${keys[i]}_description]}"
