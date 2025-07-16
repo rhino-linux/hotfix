@@ -284,10 +284,12 @@ if [[ -n ${IN_KEY} ]]; then
     exit 1
   fi
   fancy_message info "Fetched hotfix from ${login}"
-  if [[ ${data[${IN_KEY}_archived]} == "false" ]]; then
+  if [[ -z ${data[${IN_KEY}_archived]} || ${data[${IN_KEY}_archived]} == "null" ]]; then
+      status="${BYellow}Unknown Status${NC}"
+  elif [[ ${data[${IN_KEY}_archived]} == "false" ]]; then
     status="${BCyan}Current${NC}"
   else
-    status="${BOLD}Deprecated in ${data[${IN_KEY}_archived]}${NC}"
+    status="${BPurple}Deprecated in ${data[${IN_KEY}_archived]}${NC}"
   fi
   fancy_message sub "${BOLD}${IN_KEY}${NC} (${data[${IN_KEY}_published]}) - ${status}"
   echo -e "\t ${BLUE}╰➤${NC} ${data[${IN_KEY}_description]}"
@@ -297,7 +299,9 @@ else
   fancy_message note "There are ${BPurple}${#keys[@]}${NC} hotfixes available:"
   echo -e "\t[${RED}N${NC}] Exit"
   for i in "${!keys[@]}"; do
-    if [[ ${data[${keys[i]}_archived]} == "false" ]]; then
+    if [[ -z ${data[${keys[i]}_archived]} || ${data[${keys[i]}_archived]} == "null" ]]; then
+      status="${BYellow}Unknown Status${NC}"
+    elif [[ ${data[${keys[i]}_archived]} == "false" ]]; then
       status="${BCyan}Current${NC}"
     else
       status="${BPurple}Deprecated in ${data[${keys[i]}_archived]}${NC}"
