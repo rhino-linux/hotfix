@@ -292,11 +292,12 @@ else
   echo -e "\t[${RED}N${NC}] Exit"
   for i in "${!keys[@]}"; do
     if [[ ${data[${keys[i]}_archived]} == "false" ]]; then
-      status="Current"
+      status="${BCyan}Current${NC}"
     else
-      status="Deprecated in ${data[${keys[i]}_published]}"
+      status="${BPurple}Deprecated in ${data[${keys[i]}_archived]}${NC}"
     fi
-    echo -e "\t[${GREEN}$((i + 1))${NC}] ${BOLD}${keys[i]}${NC} (${data[${keys[i]}_published]}) - ${status}\n\t\t${data[${keys[i]}_description]}"
+    echo -e "\t[${GREEN}$((i + 1))${NC}] ${BOLD}${keys[i]}${NC} (${data[${keys[i]}_published]}) - ${status}"
+    echo -e "\t ${GREEN}╰➤${NC} ${data[${keys[i]}_description]}"
   done
   if ((${#keys[@]} <= 6)); then
     for ((i = 0; i < ${#keys[@]}; i++)); do
