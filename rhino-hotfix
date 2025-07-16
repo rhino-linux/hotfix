@@ -285,7 +285,7 @@ if [[ -n ${IN_KEY} ]]; then
   fi
   fancy_message info "Fetched hotfix from ${login}"
   if [[ -z ${data[${IN_KEY}_archived]} || ${data[${IN_KEY}_archived]} == "null" ]]; then
-      status="${BYellow}Unknown Status${NC}"
+    status="${BYellow}Unknown Status${NC}"
   elif [[ ${data[${IN_KEY}_archived]} == "false" ]]; then
     status="${BCyan}Current${NC}"
   else
