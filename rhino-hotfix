@@ -255,16 +255,16 @@ else
 	parse_pr "${user}" "${repo}" "${pr}" BASEURL
   login+="${YELLOW}#${pr}${NC}"
 fi
-hotfixes="$(curl -fsSL ${BASEURL}/hotfixes.json | jq 'to_entries | sort_by(.value.published) | from_entries')" || { fancy_message error "Failed to fetch hotfixes from ${login}"; exit 1; }
+hotfixes="$(curl -fsSL ${BASEURL}/hotfixes.json | jq 'to_entries | sort_by(.value.published)')" || { fancy_message error "Failed to fetch hotfixes from ${login}"; exit 1; }
 if [[ ${hotfixes} == "{}" ]]; then
   fancy_message note "There are ${BPurple}0${NC} hotfixes available from ${login}"
   exit 0
 fi
-mapfile -t keys < <(jq -r 'keys[]' <<< "${hotfixes}")
-mapfile -t scripts < <(jq -r '.[] | .script' <<< "${hotfixes}")
-mapfile -t descriptions < <(jq -r '.[] | .description' <<< "${hotfixes}")
-mapfile -t published_dates < <(jq -r '.[] | .published' <<< "${hotfixes}")
-mapfile -t archived < <(jq -r '.[] | .archived' <<< "${hotfixes}")
+mapfile -t keys < <(jq -r '.[].key' <<< "${hotfixes}")
+mapfile -t scripts < <(jq -r '.[].value.script' <<< "${hotfixes}")
+mapfile -t descriptions < <(jq -r '.[].value.description' <<< "${hotfixes}")
+mapfile -t published_dates < <(jq -r '.[].value.published' <<< "${hotfixes}")
+mapfile -t archived < <(jq -r '.[].value.archived' <<< "${hotfixes}")
 
 declare -A data
 for i in "${!keys[@]}"; do
