@@ -255,7 +255,7 @@ else
 	parse_pr "${user}" "${repo}" "${pr}" BASEURL
   login+="${YELLOW}#${pr}${NC}"
 fi
-hotfixes="$(curl -fsSL ${BASEURL}/hotfixes.json)" || { fancy_message error "Failed to fetch hotfixes from ${login}"; exit 1; }
+hotfixes="$(curl -fsSL ${BASEURL}/hotfixes.json | jq 'to_entries | sort_by(.value.published) | from_entries')" || { fancy_message error "Failed to fetch hotfixes from ${login}"; exit 1; }
 if [[ ${hotfixes} == "{}" ]]; then
   fancy_message note "There are ${BPurple}0${NC} hotfixes available from ${login}"
   exit 0
