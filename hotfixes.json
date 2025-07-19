@@ -1,17 +1,20 @@
 {
     "bt-a2dp": {
-        "script": "scripts/btcodec.sh",
+        "script": "btcodec.sh",
         "description": "Repairs A2DP profiles with Bluetooth Audio",
-        "published": "2025-03-04"
+        "published": "2025-03-04",
+        "archived": "2025.3"
     },
     "ffstream": {
-        "script": "scripts/streaming.sh",
+        "script": "streaming.sh",
         "description": "Repairs Firefox streaming issues",
-        "published": "2025-02-24"
+        "published": "2025-02-24",
+        "archived": "2025.3"
     },
     "nix-bin": {
-        "script": "scripts/nix-bin.sh",
+        "script": "nix-bin.sh",
         "description": "Repairs nix-bin segfaults in 2025.3 images",
-        "published": "2025-06-29"
+        "published": "2025-06-29",
+        "archived": "false"
     }
 }
