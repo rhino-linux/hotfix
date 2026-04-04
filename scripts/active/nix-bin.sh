@@ -3,7 +3,7 @@
 hotfix() {
   pkgname="nix-bin"
   badver="2.26.3+dfsg-1ubuntu"
-  goodver="2.26.3+dfsg-1+b1"
+  goodver="2.26.3+dfsg-1"
   CARCH="$(dpkg --print-architecture)"
 
   mapfile -t status < <(dpkg-query -W --showformat='${db:Status-Status}\n${Version}' "${pkgname}" 2> /dev/null)
